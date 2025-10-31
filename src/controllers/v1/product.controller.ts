@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { products } from "../../db/schema.js";
 import { db } from "../../db/index.js";
 import { eq, desc, like, and } from "drizzle-orm";
 
 // get all products
 
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req:Request, res:Response) => {
   try {
     const { category, search, bestSeller } = req.query;
     let query = db.select().from(products);
@@ -40,6 +40,12 @@ export const getProducts = async (req: Request, res: Response) => {
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+     if (!id) {
+       return res.status(400).json({
+         success: false,
+         message: "Product ID is required",
+       });
+     }
     const productId = parseInt(id);
     if (isNaN(productId)) {
       return res.status(400).json({
@@ -132,6 +138,12 @@ export const createProduct = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+     if (!id) {
+       return res.status(400).json({
+         success: false,
+         message: "Product ID is required",
+       });
+     }
     const productId = parseInt(id);
     const updates = req.body;
 
@@ -178,6 +190,12 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+     if (!id) {
+       return res.status(400).json({
+         success: false,
+         message: "Product ID is required",
+       });
+     }
     const productId = parseInt(id);
 
     if (isNaN(productId)) {

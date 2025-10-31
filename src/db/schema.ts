@@ -10,8 +10,10 @@ import {
   json,
 } from "drizzle-orm/pg-core";
 
+const TABLE_PREFIX = "GMP_"; 
+
 // Users table
-export const users = pgTable("users", {
+export const users = pgTable(`${TABLE_PREFIX}users`, {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
@@ -23,7 +25,7 @@ export const users = pgTable("users", {
 });
 
 // Categories table
-export const categories = pgTable("categories", {
+export const categories = pgTable(`${TABLE_PREFIX}categories`, {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
@@ -31,7 +33,7 @@ export const categories = pgTable("categories", {
 });
 
 // Products table
-export const products = pgTable("products", {
+export const products = pgTable(`${TABLE_PREFIX}products`, {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
@@ -49,7 +51,7 @@ export const products = pgTable("products", {
 });
 
 // Orders table
-export const orders = pgTable("orders", {
+export const orders = pgTable(`${TABLE_PREFIX}orders`, {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .references(() => users.id)
@@ -69,7 +71,7 @@ export const orders = pgTable("orders", {
 });
 
 // Order Items table
-export const orderItems = pgTable("order_items", {
+export const orderItems = pgTable(`${TABLE_PREFIX}order_items`, {
   id: serial("id").primaryKey(),
   orderId: integer("order_id")
     .references(() => orders.id)
@@ -83,7 +85,7 @@ export const orderItems = pgTable("order_items", {
 });
 
 // Cart table
-export const cart = pgTable("cart", {
+export const cart = pgTable(`${TABLE_PREFIX}cart`, {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .references(() => users.id)
@@ -97,7 +99,7 @@ export const cart = pgTable("cart", {
 });
 
 // Reviews table
-export const reviews = pgTable("reviews", {
+export const reviews = pgTable(`${TABLE_PREFIX}reviews`, {
   id: serial("id").primaryKey(),
   productId: integer("product_id")
     .references(() => products.id)
