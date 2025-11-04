@@ -9,10 +9,10 @@ import {
 
 const router = Router();
 
-router.get("/order", getUserOrders);
-router.get("/order/:id", getOrderById);
-router.post("/order", createOrder);
-router.put("/order/:id", updateOrderStatus);
-router.put("/order/:id/payment", updatePaymentStatus);
+router.get("/", getUserOrders);
+router.get("/:id", getOrderById);
+router.post("/", createOrder);
+router.put("/:id", updateOrderStatus);
+router.put("/:id/payment", updatePaymentStatus);
 
 export default router;
