@@ -147,15 +147,28 @@ export const getOrderById = async (req: AuthRequest, res: Response) => {
 };
 
 // POST /api/v1/orders - Create new order (checkout)
+// Supports both authenticated users and guest checkout
 export const createOrder = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.body.userId || req.user?.id;
-    const { cartItems, shippingAddress } = req.body;
+    const { cartItems, shippingAddress, guestInfo } = req.body;
 
-    if (!userId) {
-      return res.status(401).json({
+    // Guest checkout: require guest info (name, email, phone) if no userId
+    if (!userId && !guestInfo) {
+      return res.status(400).json({
         success: false,
-        message: "Authentication required",
+        message:
+          "Guest information (name, email, phone) is required for guest checkout",
+      });
+    }
+
+    if (
+      guestInfo &&
+      (!guestInfo.name || !guestInfo.email || !guestInfo.phone)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Guest name, email, and phone are required",
       });
     }
 
@@ -225,14 +238,15 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Create order
+    // Create order (with guest info if guest checkout)
     const newOrder = await db
       .insert(orders)
       .values({
-        userId,
+        userId: userId || null, // null for guest orders
         totalAmount: totalAmount.toString(),
         status: "pending",
         shippingAddress,
+        guestInfo: guestInfo || null, // Store guest info for guest orders
         paymentStatus: "pending",
       })
       .returning();
@@ -259,8 +273,10 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       )
     );
 
-    // Clear user's cart from database (if authenticated)
-    await db.delete(cart).where(eq(cart.userId, userId));
+    // Clear user's cart from database (only if authenticated user)
+    if (userId) {
+      await db.delete(cart).where(eq(cart.userId, userId));
+    }
 
     res.status(201).json({
       success: true,

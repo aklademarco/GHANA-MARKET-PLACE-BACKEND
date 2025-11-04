@@ -10,7 +10,7 @@ import {
   json,
 } from "drizzle-orm/pg-core";
 
-const TABLE_PREFIX = "GMP_"; 
+const TABLE_PREFIX = "GMP_";
 
 // Users table
 export const users = pgTable(`${TABLE_PREFIX}users`, {
@@ -53,9 +53,7 @@ export const products = pgTable(`${TABLE_PREFIX}products`, {
 // Orders table
 export const orders = pgTable(`${TABLE_PREFIX}orders`, {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
+  userId: integer("user_id").references(() => users.id), // Nullable for guest orders
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: varchar("status", { length: 50 }).default("pending"), // pending, processing, shipped, delivered, cancelled
   shippingAddress: json("shipping_address").$type<{
@@ -65,6 +63,11 @@ export const orders = pgTable(`${TABLE_PREFIX}orders`, {
     country: string;
     zipCode: string;
   }>(),
+  guestInfo: json("guest_info").$type<{
+    name: string;
+    email: string;
+    phone: string;
+  }>(), // For guest checkout
   paymentStatus: varchar("payment_status", { length: 50 }).default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
